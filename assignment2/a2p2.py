@@ -34,7 +34,7 @@ def load_indexing_data():
         print("Missing stopwords.pickle")
 
 
-def search_engine(mode, search_query):
+def search_engine(mode, search_query, test=False):
     global document_index
     start_time = time.time()
     load_indexing_data()
@@ -75,19 +75,44 @@ def search_engine(mode, search_query):
                 results = results.intersection(new_results)
             except KeyError: # No document contains that keyword
                 pass
-
+    # We store a word count for each url in a dict and return the ones that meet the "most" criteria
     elif mode.lower() == "most":
-        pass
+        results = dict()
+        for word in search_query:
+            try:
+                documents = inverted_index[word]
+                for url in documents:
+                    if url in results:
+                        results[url] = results[url] + 1
+                    else:
+                        results[url] = 1
+            except KeyError: # No document contains that keyword
+                pass
+        # Filter the results set based on "most" criteria
+        most = set()
+        for url in results:
+            if results[url] >= (len(search_query) / 2):
+                most.add(url)
+        results = most
     else:
         print("invalid search mode, please choose one of the following modes:\nor\nand\nmost")
 
-    print("%s results" % len(results))
-    print("Searched %s pages in %.2fs seconds" % (len(document_index), (time.time() - start_time)))
+    if(not test):
+        print("%s results" % len(results))
+        print("Searched %s pages in %.2fs seconds" % (len(document_index), (time.time() - start_time)))
 
-    for page in results:
-        print("Title: %s  %s" % (document_index[page][0], page))
+        for page in results:
+            print("Title: %s  %s" % (document_index[page][0], page))
+
+    return len(results)
+
+def test_search():
+    assert(search_engine("or", "baseball meal", test=True) == 2)
+    assert(search_engine("and", "like baseball", test=True) == 1)
+    assert (search_engine("most", "like baseball", test=True) == 7)
 
 def main():
+    test_search()
     search_query = input("What would you like to search for? ")
     mode = input("Search mode: ")
     search_engine(mode, search_query)
