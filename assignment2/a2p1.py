@@ -1,3 +1,16 @@
+'''
+All functions are commented with what they do, please read comments for an explanation of each function
+
+The main thing that is important to point out, is that I am using pickles to store all of my search and index data
+so that we can efficiently load and save data for use between programs without the need to parse it from a file
+every time
+
+In terms of data structures, I only used dictionaries, 2d dictionaries, and sets. The reason for this, is so that
+I could get constant access time to various data points for each document. In addition this format allows for easier
+pickling and use later on when performing search.
+'''
+
+
 import time
 import pickle
 import nltk

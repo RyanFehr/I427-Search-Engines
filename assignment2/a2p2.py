@@ -1,3 +1,15 @@
+'''
+load_indexing_data simply loads the pickles that are created using the a2p1 script
+search_engine will perform the specified search in the specified mode
+test_search is a function that does some unit testing of the search engine
+main will prompt for user input for doing manual searches
+
+each search mode and how I search is explained in comments by each mode in the search_engine function
+
+Data structures that I used here are the same from part 1. Anything additional that I did or altered is noted in
+comments within the functions
+'''
+
 import time
 import pickle
 import nltk
@@ -33,7 +45,7 @@ def load_indexing_data():
     except FileNotFoundError:
         print("Missing stopwords.pickle")
 
-
+# Performs a search on the specified string in the specified mode
 def search_engine(mode, search_query, test=False):
     global document_index
     start_time = time.time()
