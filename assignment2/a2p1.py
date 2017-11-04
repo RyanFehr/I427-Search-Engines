@@ -50,6 +50,9 @@ def build_inverted_index(url, contents):
     global stopwords
 
     soup = BeautifulSoup(contents, "html.parser")
+    title = soup.title
+    if title != None:
+        title = title.text
     # Prep page content for indexing
     # Clean Text
     raw_text = soup.find_all('p')
@@ -86,7 +89,7 @@ def build_inverted_index(url, contents):
             documents = inverted_index[i]
             documents[url] = 1
 
-    return soup.title.string, total_words
+    return title, total_words
 
 def index_pages(directory, index_file):
     global document_index
