@@ -1,21 +1,15 @@
 import time
-import operator
-
 import pickle
-
 import nltk
 from bs4 import BeautifulSoup
 import nltk.stem.porter as p
-import sys as System
-import urllib.request
-import re
-
 
 index_mapping = dict()
 inverted_index = dict()
 document_index = dict()
 stopwords = set()
 
+# Loads an index mapping from the file provided
 def load_index_mapping(index_file):
     global index_mapping
 
@@ -31,6 +25,7 @@ def load_index_mapping(index_file):
         print("No index file found with name " + index_file)
         # Build index
 
+# Loads stopwords from the file provided and pickles it
 def load_stopwords(stopword_file):
     global stopwords
 
@@ -45,6 +40,10 @@ def load_stopwords(stopword_file):
         print("No stopword file found with name " + stopword_file)
         # Build index
 
+    with open('stopwords.pickle', 'wb') as sp:
+        pickle.dump(stopwords, sp)
+
+# Builds the inverted index mapping of a document
 # Returns total words in document and title of document
 def build_inverted_index(url, contents):
     global stopwords
@@ -91,11 +90,11 @@ def build_inverted_index(url, contents):
 
     return title, total_words
 
+# Indexes all pages in the index file by reading from the directory given
 def index_pages(directory, index_file):
     global document_index
 
     load_index_mapping(index_file)
-    load_stopwords("stopwords.txt")
 
     for page in index_mapping:
         filename = page
@@ -110,16 +109,25 @@ def index_pages(directory, index_file):
 
     save_pickles()
 
-
+# Stores inverted index and document index as pickles
 def save_pickles():
     with open('invindex.pickle', 'wb') as ip:
         pickle.dump(inverted_index, ip)
     with open('docs.pickle', 'wb') as dp:
         pickle.dump(document_index, dp)
 
+# Loads existing pickles if there are available, else it generates new pickles
 def load_indexing_data():
     global inverted_index
     global document_index
+    global stopwords
+
+    try:
+        stopwords_pickle = open('stopwords.pickle', 'rb')
+        stopwords = pickle.load(stopwords_pickle)
+    except FileNotFoundError:
+        load_stopwords("stopwords.txt")
+
     try:
         inverted_index_pickle = open('invindex.pickle', 'rb')
         inverted_index = pickle.load(inverted_index_pickle)
@@ -128,11 +136,12 @@ def load_indexing_data():
     except FileNotFoundError:
         index_pages("./pages/", "index.dat")
 
+
 def main():
 
     start_time = time.time()
     load_indexing_data()
-        
     finish_time = (time.time() - start_time)
+    print("indexed pages in %.2fs seconds" % finish_time)
 
 main()
